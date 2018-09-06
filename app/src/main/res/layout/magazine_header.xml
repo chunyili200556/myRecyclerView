@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/magazine_item0"
+    android:layout_margin="20dp"
+    >
+
+    <TextView
+        android:id="@+id/latest_publication"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="最新出刊"
+        android:textColor="#000"
+        />
+    <TextView
+        android:id="@+id/public_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2018-03-28"
+        android:layout_below="@+id/latest_publication"
+        android:layout_marginTop="10dp"
+        />
+    <TextView
+        android:id="@+id/periods"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="644期"
+        android:layout_alignTop="@+id/public_date"
+        android:layout_toLeftOf="@+id/magazine_cover"
+        android:layout_marginRight="10dp"
+        android:textSize="13sp"
+        />
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="千禧世代　接管世界"
+        android:textSize="23sp"
+        android:layout_alignLeft="@+id/public_date"
+        android:layout_toLeftOf="@+id/magazine_cover"
+        android:layout_below="@+id/public_date"
+        android:layout_marginTop="5dp"
+        android:textColor="#000"
+        />
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/magazine_cover"
+        android:layout_width="151dp"
+        android:layout_height="210dp"
+        android:layout_alignParentRight="true"
+        fresco:placeholderImage="@drawable/magazine"
+        />
+    <TextView
+        android:id="@+id/preface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="曾被貼上「草莓族」、「自戀」標籤的世代，已經成為全球主要勞動力。他們不僅成為職場中堅，超過6成主管都是千禧世代。當七百萬…"
+        android:layout_below="@+id/magazine_cover"
+        android:textSize="16sp"
+        android:layout_marginTop="5dp"
+        android:textColor="#000"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="0dp"
+        android:background="#e1e1e1"
+        android:layout_below="@+id/preface"
+        android:layout_marginTop="20dp"
+        />
+
+
+</RelativeLayout>
