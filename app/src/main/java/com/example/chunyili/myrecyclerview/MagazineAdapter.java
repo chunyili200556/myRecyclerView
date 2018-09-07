@@ -72,6 +72,10 @@ public class MagazineAdapter extends RecyclerView.Adapter<MagazineAdapter.ViewHo
     @Override
     public int getItemViewType(int position) {
 
+        if(isYearMode){
+            return VIEW_TYPE_ITEM;
+        }
+
         if(position == 0){
             return VIEW_TYPE_HEADER;
         }
@@ -106,9 +110,7 @@ public class MagazineAdapter extends RecyclerView.Adapter<MagazineAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        if(position == 25){
-            return;
-        }
+
 
         Magazine magazine = magazineList.get(position);
 
@@ -184,8 +186,6 @@ public class MagazineAdapter extends RecyclerView.Adapter<MagazineAdapter.ViewHo
 
 
     // View Holder
-
-
     public static class ViewHolder extends RecyclerView.ViewHolder{
         public ViewHolder(View itemView) {
             super(itemView);
