@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private boolean isYearMode;
     private boolean isLoading;
+    private int loadPage = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 switchYearSelectedMode(false);
+                magazineList.clear();
+                magazineAdapter.notifyDataSetChanged();
                 requestMagazineList(1,null);
             }
         });
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchYearSelectedMode(boolean isYearSelectMode) {
         isYearMode = isYearSelectMode;
+        isLoading = false;
         if(isYearSelectMode){
             relativeLayout.setVisibility(View.VISIBLE);
         }else {
@@ -125,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             url += request;
         }
+        
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,successListener,errorListener);
         MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
@@ -134,25 +139,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onResponse(Object response) {
 
-            MagazineInfoData magazineInfoData = new Gson().fromJson(response.toString(),MagazineInfoData.class);
-            List<ItemsObjectData> items = magazineInfoData.getItems();
-
-            for(ItemsObjectData item : items){
-                List<Magazine> magazines = item.getObjects();
-
-                if(isYearMode){
-                    selectYearMagazineList = magazines;
-                }else{
-
-                    for (Magazine magazine:magazines){
-                        magazineList.add(magazine);
-                    }
-
-                    if(isLoading){
-                        magazineAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
+            handleResponseObject(response);
 
             if(isYearMode && !isLoading){
                 setUpRecyclerViewWithYearMode();
@@ -163,6 +150,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    private void handleResponseObject(Object response){
+        MagazineInfoData magazineInfoData = new Gson().fromJson(response.toString(),MagazineInfoData.class);
+        List<ItemsObjectData> items = magazineInfoData.getItems();
+        ItemsObjectData item = items.get(0);
+
+        List<Magazine> magazines = item.getObjects();
+
+        if(isYearMode){
+            selectYearMagazineList = magazines;
+        }else{
+
+            for(Magazine magazine:magazines){
+                magazineList.add(magazine);
+            }
+
+            if(isLoading){
+                magazineAdapter.notifyDataSetChanged();
+                magazineAdapter.setLoaded();
+            }
+
+        }
+    }
 
 
 
@@ -179,11 +189,7 @@ public class MainActivity extends AppCompatActivity {
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                if (position == 0){
-                    return 2;
-                }else{
-                    return 1;
-                }
+                return position == 0 ? 2 : 1;
             }
         });
 
@@ -191,66 +197,42 @@ public class MainActivity extends AppCompatActivity {
         magazineAdapter = new MagazineAdapter(recyclerView,magazineList,this,false);
         recyclerView.setAdapter(magazineAdapter);
         setLoadMore();
+
     }
 
     private void setUpRecyclerViewWithYearMode(){
-
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
 
         recyclerView.setLayoutManager(gridLayoutManager);
         magazineAdapter = new MagazineAdapter(recyclerView,selectYearMagazineList,this,true);
         recyclerView.setAdapter(magazineAdapter);
-
     }
 
     private void setLoadMore(){
         magazineAdapter.setLoadMore(new ILoadMore() {
             @Override
             public void onLoadMore() {
-                magazineList.add(null);
+                if(isYearMode){
+                    return;
+                }
                 magazineAdapter.notifyItemInserted(magazineList.size() - 1);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         isLoading = true;
-                        magazineList.remove(magazineList.size() - 1);
-
-                        magazineAdapter.notifyItemRemoved(magazineList.size());
-
-//                        //..load more magazine
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                requestMagazineList(2,null);
-                            }
-                        });
-//                        createFakeMagazine();
-//                        magazineAdapter.notifyDataSetChanged();
-                        magazineAdapter.setLoaded();
-
+                        requestMagazineList(loadPage,null);
+                        loadPage ++;
                     }
-                },5000);
-//                isLoading = false;
+                },1000);
             }
         });
-    }
-
-    private void createFakeMagazine(){
-        for(int i = 0;i <= 30;i++){
-            Magazine magazine = new Magazine("123","這是測試用的","123","//cw1.tw/CW/images/magazine/201608/magazine-57c6382be3163.jpg","2016-08-30 00:00:00","");
-            magazineList.add(magazine);
-        }
     }
 
     private MagazineAdapter.OnItemClickListener itemClickListener = new MagazineAdapter.OnItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
-            Magazine magazine;
-            if(isYearMode){
-                magazine = selectYearMagazineList.get(position);
-            }else{
-                magazine = magazineList.get(position);
-            }
+
+            Magazine magazine = isYearMode ? selectYearMagazineList.get(position):magazineList.get(position);
 
             Intent intent = new Intent(getApplicationContext(),SingleMagazineActivity.class);
             intent.putExtra("periods",magazine.getPeriods());
